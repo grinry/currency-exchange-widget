@@ -7,8 +7,8 @@
     </div>
     <FormComponent @selected="handleInput" />
     <p v-if="loading" class="text-info">Loading data.</p>
-    <p v-else-if="errorMessage" class="text-warning">{{ errorMessage }}</p>
-    <ResultsComponent v-else :results="null" />
+    <p v-else-if="errors.count()" class="text-warning">{{ errors.first() }}</p>
+    <ResultsComponent v-else :results="result" />
   </div>
 </template>
 
@@ -16,12 +16,13 @@
 import { Component, Vue } from "vue-property-decorator";
 import ResultsComponent from "@/components/ResultsComponent.vue";
 import FormComponent from "@/components/FormComponent.vue";
-import { IConverterContext, IConverterResponse } from "@/interfaces";
+import { ConverterContext, ConverterResponse } from "@/interfaces";
 import { debounce } from "debounce";
 import { repositoryFactory } from "@/repositories/repository-factory";
 import { ConverterRepository } from "@/repositories/converter.repository";
 import Axios, { CancelTokenSource } from "axios";
 import { Nullable } from "@/custom-types";
+import { ApiErrorsParser } from "@/helpers/api-errors-parser";
 
 @Component({
   components: {
@@ -34,14 +35,14 @@ export default class App extends Vue {
   public requestSource: Nullable<CancelTokenSource> = null;
 
   public loading = false;
-  public errorMessage?: string;
-  public result?: IConverterResponse;
+  public errors = new ApiErrorsParser();
+  public result: Nullable<ConverterResponse> = null;
 
-  handleInput = debounce((event: IConverterContext) => {
+  handleInput = debounce((event: ConverterContext) => {
     this.requestRates(event);
   }, 500);
 
-  requestRates(context: IConverterContext) {
+  requestRates(context: ConverterContext) {
     // Cancel previous request if its still running.
     if (this.requestSource) {
       this.requestSource.cancel();
@@ -56,10 +57,11 @@ export default class App extends Vue {
       .then(response => {
         this.loading = false;
         this.result = response.data;
+        this.errors.reset();
       })
       .catch(error => {
         if (!Axios.isCancel(error)) {
-          this.errorMessage = error.message;
+          this.errors.update(error.response);
           this.loading = false;
         }
       });

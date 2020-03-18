@@ -1,9 +1,9 @@
-import { ConverterRepository } from '@/repositories/converter.repository';
+import { ConverterRepository } from "@/repositories/converter.repository";
 
-const repositories: { [key: string ]: any } = {
-    converter: new ConverterRepository,
+const repositories: { [key: string]: any } = {
+  converter: new ConverterRepository()
 };
 
 export const repositoryFactory = {
-    get: (name: string) => repositories[name],
+  get: (name: string) => repositories[name]
 };

@@ -11,10 +11,10 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { IConverterResponse } from "@/interfaces";
+import { ConverterResponse } from "@/interfaces";
 
 @Component
 export default class ResultsComponent extends Vue {
-  @Prop({ required: true }) results!: IConverterResponse;
+  @Prop({ required: true }) results!: ConverterResponse;
 }
 </script>

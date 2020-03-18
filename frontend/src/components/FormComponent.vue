@@ -19,8 +19,8 @@
       </div>
       <div class="col-sm-12 col-md-4">
         <div class="form-group">
-          <label for="base-amount">Base amount</label>
-          <input v-model="baseAmount" class="form-control" id="base-amount" />
+          <label for="base-amount">Base amount ({{ baseCurrency }})</label>
+          <input v-model="baseAmount" class="form-control" type="number" step="0.01" min="0.01" id="base-amount" />
         </div>
       </div>
     </div>
@@ -37,7 +37,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import Dropdown from "@/components/Dropdown.vue";
-import { IConverterContext, IDropdownItem } from "@/interfaces";
+import { DropdownItem } from "@/interfaces";
 import { Nullable } from "@/custom-types";
 
 @Component({
@@ -46,14 +46,14 @@ import { Nullable } from "@/custom-types";
   }
 })
 export default class FormComponent extends Vue {
-  public currencies: IDropdownItem[] = [
+  public currencies: DropdownItem[] = [
     { key: "USD", value: "USD" },
     { key: "EUR", value: "EUR" },
-    { key: "ISL", value: "ISL" }
+    { key: "ILS", value: "ILS" }
   ];
 
-  public baseCurrency: Nullable<string> = null;
-  public quoteCurrency: Nullable<string> = null;
+  public baseCurrency: Nullable<string> = "USD";
+  public quoteCurrency: Nullable<string> = "EUR";
   public baseAmount: Nullable<number> = null;
 
   public errors: Array<string> = [];
@@ -88,11 +88,8 @@ export default class FormComponent extends Vue {
 
     if (!this.errors.length) {
       this.$emit("selected", {
-        // eslint-disable-next-line @typescript-eslint/camelcase
         base_currency: this.baseCurrency,
-        // eslint-disable-next-line @typescript-eslint/camelcase
         quote_currency: this.quoteCurrency,
-        // eslint-disable-next-line @typescript-eslint/camelcase
         base_amount: this.baseAmount
       });
     }
